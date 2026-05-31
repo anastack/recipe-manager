@@ -62,8 +62,93 @@ def test_recipe_len():
     assert len(recipe) == 2
 
         
+        
+        
+@pytest.fixture
+def pizza():
+    recipe = Recipe("Маргарита")
+    recipe.add_ingredient(Ingredient("Мука", 500, "г"))
+    recipe.add_ingredient(Ingredient("Сыр", 200, "г"))
+    return recipe
 
+def test_shoppinglist_add_recipe(pizza):
+    sl = ShoppingList()
+    sl.add_recipe(pizza, 1)
+    assert len(sl.get_list()) == 2
     
+def test_shoppinglist_add_recipe_incorrect(pizza):
+    sl = ShoppingList()
+    with pytest.raises(ValueError):
+        sl.add_recipe(pizza, 0)
+        
+def test_shoppinglist_remove(pizza):
+    sl = ShoppingList()
+    sl.add_recipe(pizza, 1)
+    sl.remove_recipe("Маргарита")
+    assert len(sl.get_list()) == 0
+    
+def test_shoppinglist_remove_nonexisting(pizza):
+    sl = ShoppingList()
+    sl.add_recipe(pizza, 1)
+    sl.remove_recipe("Какой-то")
+    assert len(sl.get_list()) == 2
+
+
+def test_shoppinglist_get_list_sums():
+    pizza = Recipe("Пицца")
+    pizza.add_ingredient(Ingredient("Мука", 500, "г"))
+    bread = Recipe("Хлеб")
+    bread.add_ingredient(Ingredient("Мука", 300, "г"))
+
+    sl = ShoppingList()
+    sl.add_recipe(pizza, 1)
+    sl.add_recipe(bread, 1)
+
+    result = sl.get_list()
+    assert len(result) == 1
+    assert result[0].quantity == pytest.approx(800.0)
+    
+
+def test_shoppinglist_get_list_sorted():
+    recipe = Recipe("Блюдо")
+    recipe.add_ingredient(Ingredient("Сыр", 200, "г"))
+    recipe.add_ingredient(Ingredient("Мука", 500, "г"))
+    recipe.add_ingredient(Ingredient("Приправа", 10, "г"))
+
+    sl = ShoppingList()
+    sl.add_recipe(recipe, 1)
+
+    names = [ing.name for ing in sl.get_list()]
+    assert names == ["Мука", "Приправа", "Сыр"]
+    
+
+def test_shoppinglist_add_combine(pizza):
+    sl1 = ShoppingList()
+    sl1.add_recipe(pizza, 1)
+
+    bread = Recipe("Хлеб")
+    bread.add_ingredient(Ingredient("Мука", 300, "г"))
+    sl2 = ShoppingList()
+    sl2.add_recipe(bread, 1)
+
+    res = sl1 + sl2
+    result = res.get_list()
+    quantities = {ing.name: ing.quantity for ing in result}
+    assert quantities["Мука"] == pytest.approx(800.0)
+    assert quantities["Сыр"] == pytest.approx(200.0)
+    
+    
+    
+def test_shoppinglist_not_change_originals(pizza):
+    sl1 = ShoppingList()
+    sl1.add_recipe(pizza, 1)
+    bread = Recipe("Хлеб")
+    bread.add_ingredient(Ingredient("Мука", 300, "г"))
+    sl2 = ShoppingList()
+    sl2.add_recipe(bread, 1)
+    res = sl1 + sl2
+    assert len(sl1.get_list()) == 2
+    assert len(sl2.get_list()) == 1
 
 
 
