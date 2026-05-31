@@ -116,7 +116,8 @@ class ShoppingList:
         return result
 
     def __add__(self, other: "ShoppingList") -> "ShoppingList":
-
+        if not isinstance(other, ShoppingList):
+           return NotImplemented
         res = ShoppingList()
         res._items = deepcopy(self._items) + deepcopy(other._items)
         return res
