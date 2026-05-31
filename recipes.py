@@ -120,3 +120,17 @@ class ShoppingList:
         res = ShoppingList()
         res._items = deepcopy(self._items) + deepcopy(other._items)
         return res
+    
+    
+
+class DietaryRecipe(Recipe):
+    def __init__(self, title: str, diet_type: str, ingredients: list = None) -> None:
+        super().__init__(title, ingredients)
+        self.diet_type = diet_type
+
+    def scale(self, ratio: float) -> "DietaryRecipe":
+        scaled = super().scale(ratio)
+        return DietaryRecipe(self.title, self.diet_type, scaled.ingredients)
+
+    def __str__(self) -> str:
+        return f"[{self.diet_type}] {super().__str__()}"
